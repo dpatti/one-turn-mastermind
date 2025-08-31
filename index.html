@@ -79,8 +79,11 @@
         }
         #game-controls {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 10px;
+        }
+        #share-button {
+            margin-left: auto;
         }
         .submit-button {
             padding: 15px 30px;
@@ -169,10 +172,8 @@
         <div id="player-input" class="player-input"></div>
         <div id="game-controls">
             <button id="submit-button" class="submit-button">Submit</button>
-            <div>
-                <button id="share-button" class="share-button">Share Link</button>
-                <button id="new-game-button" class="new-game-button">New Game</button>
-            </div>
+            <button id="share-button" class="share-button">Share Link</button>
+            <button id="new-game-button" class="new-game-button">New Game</button>
         </div>
         <div id="result" class="result"></div>
     </div>
