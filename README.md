@@ -19,6 +19,9 @@ required!
   two.
 * Sometimes you can figure out a slot by eliminating all options except one. The
   advanced input mode includes checkboxes for tracking purposes.
+* Look at two rows with a combined number of black/white pegs greater than 4.
+  Since there are only 4 slots in the solution, these two rows must share at
+  least one color in common which is part of the solution.
 
 ## History
 
