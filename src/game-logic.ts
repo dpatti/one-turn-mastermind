@@ -24,8 +24,6 @@ export function generateRandomGuesses(): GuessWithFeedback[] {
 }
 
 export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
-  const allFeedbackOptions = generateAllPossibleFeedback();
-  
   let remainingPossibilities = generateAllPossibleGuesses();
   
   const selectedGuesses: GuessWithFeedback[] = [];
@@ -58,7 +56,7 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
   while (remainingPossibilities.length > 1) {
     console.log({ beforeGuess: selectedGuesses.length + 1, remainingPossibilities });
     
-    const bestGuess = findBestGuess(remainingPossibilities, allFeedbackOptions, secret);
+    const bestGuess = findBestGuess(remainingPossibilities, secret);
     const feedback = calculateFeedback(bestGuess, secret);
     selectedGuesses.push({ guess: bestGuess, feedback });
     
@@ -103,18 +101,19 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
   return selectedGuesses;
 }
 
-function findBestGuess(remainingPossibilities: Code[], allFeedbackOptions: Feedback[], secret: Code): Code {
+function findBestGuess(remainingPossibilities: Code[], secret: Code): Code {
+  const allPossibleGuesses = generateAllPossibleGuesses();
   let bestGuess: Code | null = null;
   let bestScore = -1;
   let countWithBestScore = 0;
   
-  for (const guess of remainingPossibilities) {
+  for (const guess of allPossibleGuesses) {
     // Skip the secret itself
     if (arraysEqual(guess, secret)) {
       continue;
     }
     
-    const score = calculateGuessScore(guess, remainingPossibilities, allFeedbackOptions);
+    const score = calculateGuessScore(guess, remainingPossibilities);
     
     if (score > bestScore) {
       bestScore = score;
@@ -132,19 +131,26 @@ function findBestGuess(remainingPossibilities: Code[], allFeedbackOptions: Feedb
   return bestGuess || remainingPossibilities.find(g => !arraysEqual(g, secret))!;
 }
 
-function calculateGuessScore(guess: Code, remainingPossibilities: Code[], allFeedbackOptions: Feedback[]): number {
-  let worstCaseEliminations = Infinity;
+function calculateGuessScore(guess: Code, remainingPossibilities: Code[]): number {
+  // Group remaining possibilities by the feedback they would give for this guess
+  const feedbackGroups = new Map<string, number>();
   
-  for (const feedback of allFeedbackOptions) {
-    const afterFiltering = filterPossibleSolutions(remainingPossibilities, guess, feedback);
-    const eliminated = remainingPossibilities.length - afterFiltering.length;
-    
-    if (eliminated < worstCaseEliminations) {
-      worstCaseEliminations = eliminated;
+  for (const possibility of remainingPossibilities) {
+    const feedback = calculateFeedback(guess, possibility);
+    const feedbackKey = `${feedback.black}-${feedback.white}`;
+    feedbackGroups.set(feedbackKey, (feedbackGroups.get(feedbackKey) || 0) + 1);
+  }
+  
+  // Find the largest group (worst case scenario)
+  let largestGroup = 0;
+  for (const groupSize of feedbackGroups.values()) {
+    if (groupSize > largestGroup) {
+      largestGroup = groupSize;
     }
   }
   
-  return worstCaseEliminations;
+  // Return minimum guaranteed eliminations (worst case)
+  return remainingPossibilities.length - largestGroup;
 }
 
 function arraysEqual(a: Code, b: Code): boolean {
