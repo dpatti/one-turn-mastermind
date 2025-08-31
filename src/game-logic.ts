@@ -33,6 +33,20 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
   
   const selectedGuesses: GuessWithFeedback[] = [];
   
+  // First guess is completely random for variety
+  if (remainingPossibilities.length > 1) {
+    const randomIndex = Math.floor(Math.random() * allPossibleGuesses.length);
+    const firstGuess = allPossibleGuesses[randomIndex];
+    
+    // Make sure first guess isn't the secret itself
+    if (!arraysEqual(firstGuess, secret)) {
+      const feedback = calculateFeedback(firstGuess, secret);
+      selectedGuesses.push({ guess: firstGuess, feedback });
+      remainingPossibilities = filterPossibleSolutions(remainingPossibilities, firstGuess, feedback);
+    }
+  }
+  
+  // Continue with optimal guesses until we have exactly one possibility (the secret)
   while (remainingPossibilities.length > 1) {
     const bestGuess = findBestGuess(remainingPossibilities, allPossibleGuesses, allFeedbackOptions);
     const feedback = calculateFeedback(bestGuess, secret);
@@ -40,6 +54,21 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
     selectedGuesses.push({ guess: bestGuess, feedback });
     
     remainingPossibilities = filterPossibleSolutions(remainingPossibilities, bestGuess, feedback);
+    
+    // Safety check to avoid infinite loops
+    if (selectedGuesses.length > 10) {
+      console.warn('Too many guesses generated, stopping');
+      break;
+    }
+  }
+  
+  // Verify that the generated clues lead to a unique solution
+  const allSolutions = findAllPossibleSolutions(selectedGuesses);
+  if (allSolutions.length !== 1 || !arraysEqual(allSolutions[0], secret)) {
+    console.warn('Generated puzzle does not have unique solution:', allSolutions.length, 'solutions found');
+    console.log('Solutions:', allSolutions);
+    console.log('Expected:', secret);
+    console.log('Guesses:', selectedGuesses);
   }
   
   return selectedGuesses;
@@ -78,6 +107,16 @@ function calculateGuessScore(guess: Code, remainingPossibilities: Code[], allFee
 
 function arraysEqual(a: Code, b: Code): boolean {
   return a.length === b.length && a.every((val, i) => val === b[i]);
+}
+
+export function findAllPossibleSolutions(guessesWithFeedback: GuessWithFeedback[]): Code[] {
+  let possibleSolutions = generateAllPossibleGuesses();
+  
+  for (const { guess, feedback } of guessesWithFeedback) {
+    possibleSolutions = filterPossibleSolutions(possibleSolutions, guess, feedback);
+  }
+  
+  return possibleSolutions;
 }
 
 export function generateAllPossibleGuesses(): Code[] {

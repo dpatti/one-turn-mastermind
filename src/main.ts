@@ -1,14 +1,14 @@
-import { GameState, Code, Color } from './types.js';
+import { GameState, Code, PlayerCode, PlayerColor } from './types.js';
 import { generateOptimalGuesses, generateAllPossibleGuesses } from './game-logic.js';
 import { renderGame } from './renderer.js';
 
 class Game {
   private state: GameState;
-  private playerInputColors: Code;
+  private playerInputColors: PlayerCode;
 
   constructor() {
     this.state = this.initializeGame();
-    this.playerInputColors = ['R', 'R', 'R', 'R'];
+    this.playerInputColors = [null, null, null, null];
     this.setupEventListeners();
     this.render();
   }
@@ -38,10 +38,18 @@ class Game {
   private submitGuess(): void {
     if (this.state.gameEnded) return;
 
-    this.state.playerGuess = [...this.playerInputColors];
+    // Check if all positions are filled
+    if (this.playerInputColors.some(color => color === null)) {
+      alert('Please select a color for all positions before submitting!');
+      return;
+    }
+
+    // Convert PlayerCode to Code for submission
+    const playerGuess = this.playerInputColors as Code;
+    this.state.playerGuess = [...playerGuess];
     this.state.gameEnded = true;
     
-    const isCorrect = this.playerInputColors.every((color, index) => 
+    const isCorrect = playerGuess.every((color, index) => 
       color === this.state.secret[index]
     );
     
@@ -51,12 +59,12 @@ class Game {
 
   private startNewGame(): void {
     this.state = this.initializeGame();
-    this.playerInputColors = ['R', 'R', 'R', 'R'];
+    this.playerInputColors = [null, null, null, null];
     this.render();
   }
 
   private render(): void {
-    renderGame(this.state, this.playerInputColors, (index: number, color: Color) => {
+    renderGame(this.state, this.playerInputColors, (index: number, color: PlayerColor) => {
       this.playerInputColors[index] = color;
       this.render();
     });

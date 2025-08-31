@@ -1,6 +1,10 @@
 export type Color = 'R' | 'G' | 'B' | 'Y' | 'O' | 'P';
 
+export type PlayerColor = Color | null;
+
 export type Code = [Color, Color, Color, Color];
+
+export type PlayerCode = [PlayerColor, PlayerColor, PlayerColor, PlayerColor];
 
 export interface Feedback {
   black: number;

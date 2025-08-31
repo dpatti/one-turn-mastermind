@@ -1,10 +1,10 @@
-import { GameState, Code, Color, COLORS, COLOR_NAMES, COLOR_STYLES, GuessWithFeedback } from './types.js';
+import { GameState, Code, Color, PlayerCode, PlayerColor, COLORS, COLOR_NAMES, COLOR_STYLES, GuessWithFeedback } from './types.js';
 import { calculateFeedback } from './game-logic.js';
 
 export function renderGame(
   state: GameState, 
-  playerInputColors: Code, 
-  onColorChange: (index: number, color: Color) => void
+  playerInputColors: PlayerCode, 
+  onColorChange: (index: number, color: PlayerColor) => void
 ): void {
   renderGameBoard(state);
   renderPlayerInput(playerInputColors, onColorChange, state.gameEnded);
@@ -132,8 +132,8 @@ function createFeedbackPeg(type: 'black' | 'white'): HTMLDivElement {
 }
 
 function renderPlayerInput(
-  playerInputColors: Code, 
-  onColorChange: (index: number, color: Color) => void,
+  playerInputColors: PlayerCode, 
+  onColorChange: (index: number, color: PlayerColor) => void,
   gameEnded: boolean
 ): void {
   const playerInput = document.getElementById('player-input');
@@ -153,6 +153,13 @@ function renderPlayerInput(
     const selector = document.createElement('select');
     selector.className = 'color-selector';
     
+    // Add blank option
+    const blankOption = document.createElement('option');
+    blankOption.value = '';
+    blankOption.textContent = '---';
+    blankOption.selected = selectedColor === null;
+    selector.appendChild(blankOption);
+    
     COLORS.forEach((color) => {
       const option = document.createElement('option');
       option.value = color;
@@ -163,7 +170,8 @@ function renderPlayerInput(
 
     selector.addEventListener('change', (e) => {
       const target = e.target as HTMLSelectElement;
-      onColorChange(index, target.value as Color);
+      const value = target.value === '' ? null : target.value as Color;
+      onColorChange(index, value);
     });
 
     playerInput.appendChild(selector);
