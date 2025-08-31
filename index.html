@@ -88,6 +88,11 @@
         .submit-button:hover {
             background: #45a049;
         }
+        .submit-button:disabled {
+            background: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+        }
         .new-game-button {
             padding: 15px 30px;
             background: #2196F3;
@@ -120,7 +125,7 @@
         <div id="game-board" class="game-board"></div>
         <div id="player-input" class="player-input"></div>
         <div id="game-controls">
-            <button id="submit-button" class="submit-button">Submit Guess</button>
+            <button id="submit-button" class="submit-button">Submit</button>
             <button id="new-game-button" class="new-game-button">New Game</button>
         </div>
         <div id="result" class="result"></div>

@@ -40,8 +40,7 @@ class Game {
 
     // Check if all positions are filled
     if (this.playerInputColors.some(color => color === null)) {
-      alert('Please select a color for all positions before submitting!');
-      return;
+      return; // Button should be disabled, so this shouldn't happen
     }
 
     // Convert PlayerCode to Code for submission

@@ -8,6 +8,7 @@ export function renderGame(
 ): void {
   renderGameBoard(state);
   renderPlayerInput(playerInputColors, onColorChange, state.gameEnded);
+  renderSubmitButton(playerInputColors, state.gameEnded);
   renderResult(state);
 }
 
@@ -143,12 +144,6 @@ function renderPlayerInput(
 
   if (gameEnded) return;
 
-  const label = document.createElement('span');
-  label.textContent = 'Your guess: ';
-  label.style.fontSize = '18px';
-  label.style.fontWeight = 'bold';
-  playerInput.appendChild(label);
-
   playerInputColors.forEach((selectedColor, index) => {
     const selector = document.createElement('select');
     selector.className = 'color-selector';
@@ -178,6 +173,18 @@ function renderPlayerInput(
   });
 }
 
+function renderSubmitButton(playerInputColors: PlayerCode, gameEnded: boolean): void {
+  const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
+  if (!submitButton) return;
+
+  if (gameEnded) {
+    submitButton.disabled = true;
+  } else {
+    const hasBlankColors = playerInputColors.some(color => color === null);
+    submitButton.disabled = hasBlankColors;
+  }
+}
+
 function renderResult(state: GameState): void {
   const resultDiv = document.getElementById('result');
   if (!resultDiv) return;
@@ -188,10 +195,10 @@ function renderResult(state: GameState): void {
   }
 
   if (state.playerWon) {
-    resultDiv.textContent = 'Congratulations! You solved it!';
+    resultDiv.textContent = 'Correct!';
     resultDiv.className = 'result correct';
   } else {
-    resultDiv.textContent = 'Better luck next time! The secret is shown above.';
+    resultDiv.textContent = 'Incorrect! The secret is shown above.';
     resultDiv.className = 'result incorrect';
   }
 }
