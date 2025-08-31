@@ -26,18 +26,17 @@ export function generateRandomGuesses(): GuessWithFeedback[] {
 export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
   const allFeedbackOptions = generateAllPossibleFeedback();
   
-  let remainingPossibilities = generateAllPossibleGuesses().filter(guess => 
-    !arraysEqual(guess, secret)
-  );
+  let remainingPossibilities = generateAllPossibleGuesses();
   
   const selectedGuesses: GuessWithFeedback[] = [];
   
   console.log({ secret, initialPossibilities: remainingPossibilities.length });
   
   // First guess is completely random for variety
-  if (remainingPossibilities.length > 0) {
-    const randomIndex = Math.floor(Math.random() * remainingPossibilities.length);
-    const firstGuess = remainingPossibilities[randomIndex];
+  if (remainingPossibilities.length > 1) {
+    const nonSecretPossibilities = remainingPossibilities.filter(guess => !arraysEqual(guess, secret));
+    const randomIndex = Math.floor(Math.random() * nonSecretPossibilities.length);
+    const firstGuess = nonSecretPossibilities[randomIndex];
     
     const feedback = calculateFeedback(firstGuess, secret);
     selectedGuesses.push({ guess: firstGuess, feedback });
@@ -55,11 +54,11 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
     remainingPossibilities = newRemaining;
   }
   
-  // Continue with optimal guesses until we have no remaining possibilities (only the secret remains)
-  while (remainingPossibilities.length > 0) {
+  // Continue with optimal guesses until only the secret remains
+  while (remainingPossibilities.length > 1) {
     console.log({ beforeGuess: selectedGuesses.length + 1, remainingPossibilities });
     
-    const bestGuess = findBestGuess(remainingPossibilities, allFeedbackOptions);
+    const bestGuess = findBestGuess(remainingPossibilities, allFeedbackOptions, secret);
     const feedback = calculateFeedback(bestGuess, secret);
     selectedGuesses.push({ guess: bestGuess, feedback });
     
@@ -96,19 +95,25 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
     console.log({ 
       success: true, 
       totalGuesses: selectedGuesses.length, 
-      solution: secret 
+      solution: secret,
+      finalRemainingPossibilities: remainingPossibilities.length
     });
   }
   
   return selectedGuesses;
 }
 
-function findBestGuess(remainingPossibilities: Code[], allFeedbackOptions: Feedback[]): Code {
-  let bestGuess = remainingPossibilities[0];
+function findBestGuess(remainingPossibilities: Code[], allFeedbackOptions: Feedback[], secret: Code): Code {
+  let bestGuess: Code | null = null;
   let bestScore = -1;
   let countWithBestScore = 0;
   
   for (const guess of remainingPossibilities) {
+    // Skip the secret itself
+    if (arraysEqual(guess, secret)) {
+      continue;
+    }
+    
     const score = calculateGuessScore(guess, remainingPossibilities, allFeedbackOptions);
     
     if (score > bestScore) {
@@ -123,7 +128,8 @@ function findBestGuess(remainingPossibilities: Code[], allFeedbackOptions: Feedb
     }
   }
   
-  return bestGuess;
+  // Fallback: if somehow no guess was found (shouldn't happen), return first non-secret
+  return bestGuess || remainingPossibilities.find(g => !arraysEqual(g, secret))!;
 }
 
 function calculateGuessScore(guess: Code, remainingPossibilities: Code[], allFeedbackOptions: Feedback[]): number {
