@@ -4,6 +4,24 @@ Given a Mastermind board that has eliminated all possible options except one,
 can you deduce the solution from the clues? You get one chance. No guessing
 required!
 
+[Play](https://dpatti.github.io/one-turn-mastermind/)
+
+## Hints
+
+* It can be hard to figure out colors *and* positions together. Try starting by
+  just figuring out which colors are in the set, and from there try to get their
+  positions.
+* Don't forget about negative information: a row that gets few or no black/white
+  pegs tells you a lot.
+* Look for rows that changed slightly (one or two slots) and see if you can
+  extract information from there. Two slots changing with no change in
+  black/white pegs can give you some information about the relationship of those
+  two.
+* Sometimes you can figure out a slot by eliminating all options except one. The
+  advanced input mode includes checkboxes for tracking purposes.
+
+## History
+
 This is a game idea I had while reading [Optimal Mastermind][1], which has a toy
 mastermind implementation with a suggestion for the move that would provide the
 most bits of information. On my first attempt, I got really lucky and randomly
