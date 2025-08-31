@@ -359,13 +359,13 @@ function renderPlayerInput(
       // Add blank option
       const blankOption = document.createElement('option');
       blankOption.value = '';
-      blankOption.textContent = '---';
+      blankOption.textContent = '?';
       selector.appendChild(blankOption);
 
       COLORS.forEach((color) => {
         const option = document.createElement('option');
         option.value = color;
-        option.textContent = COLOR_NAMES[color];
+        option.textContent = color;
         selector.appendChild(option);
       });
 
@@ -379,13 +379,24 @@ function renderPlayerInput(
     });
   }
 
-  // Update existing selectors' values without recreating them
+  // Update existing selectors' values and background colors without recreating them
   playerInputColors.forEach((selectedColor, index) => {
     const selector = document.getElementById(`color-selector-${index}`) as HTMLSelectElement;
     if (selector) {
       const value = selectedColor === null ? '' : selectedColor;
       if (selector.value !== value) {
         selector.value = value;
+      }
+      
+      // Update background color based on selection
+      if (selectedColor) {
+        selector.style.backgroundColor = COLOR_STYLES[selectedColor];
+        selector.style.color = selectedColor === 'Y' ? '#333' : 'white'; // Dark text for yellow
+        selector.style.border = '2px solid #333';
+      } else {
+        selector.style.backgroundColor = 'white';
+        selector.style.color = '#999';
+        selector.style.border = '2px dashed #999';
       }
     }
   });
