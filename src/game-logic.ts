@@ -34,6 +34,8 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
   const selectedGuesses: GuessWithFeedback[] = [];
   const usedGuesses: Code[] = [];
   
+  console.log({ secret, initialPossibilities: remainingPossibilities.length });
+  
   // First guess is completely random for variety
   if (remainingPossibilities.length > 0) {
     const availableGuesses = allPossibleGuesses.filter(guess => 
@@ -47,17 +49,30 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
       const feedback = calculateFeedback(firstGuess, secret);
       selectedGuesses.push({ guess: firstGuess, feedback });
       usedGuesses.push(firstGuess);
-      remainingPossibilities = filterPossibleSolutions(remainingPossibilities, firstGuess, feedback);
+      const newRemaining = filterPossibleSolutions(remainingPossibilities, firstGuess, feedback);
+      
+      console.log({ 
+        guessNumber: 1, 
+        type: 'random', 
+        guess: firstGuess, 
+        feedback, 
+        eliminated: remainingPossibilities.length - newRemaining.length,
+        remaining: newRemaining.length 
+      });
+      
+      remainingPossibilities = newRemaining;
     }
   }
   
   // Continue with optimal guesses until we have no remaining possibilities (only the secret remains)
   while (remainingPossibilities.length > 0) {
+    console.log({ beforeGuess: selectedGuesses.length + 1, remainingPossibilities });
+    
     const bestGuess = findBestGuess(remainingPossibilities, allPossibleGuesses, allFeedbackOptions, usedGuesses);
     
     // Safety check: if no valid guess found, stop
     if (!bestGuess) {
-      console.warn('No valid guess found, stopping');
+      console.warn({ error: 'No valid guess found, stopping' });
       break;
     }
     
@@ -65,11 +80,21 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
     selectedGuesses.push({ guess: bestGuess, feedback });
     usedGuesses.push(bestGuess);
     
-    remainingPossibilities = filterPossibleSolutions(remainingPossibilities, bestGuess, feedback);
+    const newRemaining = filterPossibleSolutions(remainingPossibilities, bestGuess, feedback);
+    console.log({ 
+      guessNumber: selectedGuesses.length, 
+      type: 'optimal', 
+      guess: bestGuess, 
+      feedback, 
+      eliminated: remainingPossibilities.length - newRemaining.length,
+      remaining: newRemaining.length 
+    });
+    
+    remainingPossibilities = newRemaining;
     
     // Safety check to avoid infinite loops
     if (selectedGuesses.length > 10) {
-      console.warn('Too many guesses generated, stopping');
+      console.warn({ error: 'Too many guesses generated, stopping' });
       break;
     }
   }
@@ -77,10 +102,19 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
   // Verify that the generated clues lead to a unique solution
   const allSolutions = findAllPossibleSolutions(selectedGuesses);
   if (allSolutions.length !== 1 || !arraysEqual(allSolutions[0], secret)) {
-    console.warn('Generated puzzle does not have unique solution:', allSolutions.length, 'solutions found');
-    console.log('Solutions:', allSolutions);
-    console.log('Expected:', secret);
-    console.log('Guesses:', selectedGuesses);
+    console.warn({ 
+      error: 'Generated puzzle does not have unique solution', 
+      solutionCount: allSolutions.length,
+      solutions: allSolutions,
+      expected: secret,
+      guesses: selectedGuesses 
+    });
+  } else {
+    console.log({ 
+      success: true, 
+      totalGuesses: selectedGuesses.length, 
+      solution: secret 
+    });
   }
   
   return selectedGuesses;
