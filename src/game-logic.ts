@@ -34,7 +34,7 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
   const selectedGuesses: GuessWithFeedback[] = [];
   
   // First guess is completely random for variety
-  if (remainingPossibilities.length > 1) {
+  if (remainingPossibilities.length > 0) {
     const randomIndex = Math.floor(Math.random() * allPossibleGuesses.length);
     const firstGuess = allPossibleGuesses[randomIndex];
     
@@ -46,8 +46,8 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
     }
   }
   
-  // Continue with optimal guesses until we have exactly one possibility (the secret)
-  while (remainingPossibilities.length > 1) {
+  // Continue with optimal guesses until we have no remaining possibilities (only the secret remains)
+  while (remainingPossibilities.length > 0) {
     const bestGuess = findBestGuess(remainingPossibilities, allPossibleGuesses, allFeedbackOptions);
     const feedback = calculateFeedback(bestGuess, secret);
     
