@@ -211,16 +211,15 @@ function renderAdvancedInput(
   playerInput.style.display = 'flex';
   playerInput.style.flexWrap = 'wrap';
   playerInput.style.alignItems = 'flex-end';
-  playerInput.style.gap = '20px';
+  playerInput.style.gap = '8px';
   playerInput.style.marginBottom = '20px';
 
   for (let i = 0; i < 4; i++) {
     const slotContainer = document.createElement('div');
     slotContainer.className = 'slot-container';
-    slotContainer.style.border = '2px solid #333';
-    slotContainer.style.borderRadius = '8px';
-    slotContainer.style.padding = '12px';
+    slotContainer.style.padding = '8px';
     slotContainer.style.background = '#f8f8f8';
+    slotContainer.style.borderRadius = '4px';
 
 
     // Only show selected color when exactly one candidate is selected
@@ -249,21 +248,21 @@ function renderAdvancedInput(
     const checkboxContainer = document.createElement('div');
     checkboxContainer.style.display = 'flex';
     checkboxContainer.style.flexDirection = 'column';
-    checkboxContainer.style.gap = '6px';
+    checkboxContainer.style.gap = '2px';
 
     COLORS.forEach((color) => {
       const label = document.createElement('label');
       label.style.display = 'flex';
       label.style.alignItems = 'center';
       label.style.cursor = 'pointer';
-      label.style.padding = '4px';
+      label.style.padding = '2px';
       label.style.borderRadius = '4px';
       label.style.transition = 'background 0.2s';
 
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.checked = candidateColors[i].has(color);
-      checkbox.style.marginRight = '8px';
+      checkbox.style.marginRight = '4px';
       checkbox.addEventListener('change', (e) => {
         const target = e.target as HTMLInputElement;
         onCandidateChange(i, color, target.checked);
@@ -275,7 +274,7 @@ function renderAdvancedInput(
       colorBox.style.backgroundColor = COLOR_STYLES[color];
       colorBox.style.border = '1px solid #333';
       colorBox.style.borderRadius = '3px';
-      colorBox.style.marginRight = '6px';
+      colorBox.style.marginRight = '4px';
 
       const colorName = document.createElement('span');
       colorName.textContent = color;
