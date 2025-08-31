@@ -140,36 +140,55 @@ function renderPlayerInput(
   const playerInput = document.getElementById('player-input');
   if (!playerInput) return;
 
-  playerInput.innerHTML = '';
+  if (gameEnded) {
+    playerInput.innerHTML = '';
+    return;
+  }
 
-  if (gameEnded) return;
+  // Check if selectors already exist
+  const existingSelectors = playerInput.querySelectorAll('select.color-selector');
+  
+  if (existingSelectors.length !== playerInputColors.length) {
+    // Need to recreate all selectors
+    playerInput.innerHTML = '';
+    
+    playerInputColors.forEach((_, index) => {
+      const selector = document.createElement('select');
+      selector.className = 'color-selector';
+      selector.id = `color-selector-${index}`;
+      
+      // Add blank option
+      const blankOption = document.createElement('option');
+      blankOption.value = '';
+      blankOption.textContent = '---';
+      selector.appendChild(blankOption);
+      
+      COLORS.forEach((color) => {
+        const option = document.createElement('option');
+        option.value = color;
+        option.textContent = COLOR_NAMES[color];
+        selector.appendChild(option);
+      });
 
+      selector.addEventListener('change', (e) => {
+        const target = e.target as HTMLSelectElement;
+        const value = target.value === '' ? null : target.value as Color;
+        onColorChange(index, value);
+      });
+
+      playerInput.appendChild(selector);
+    });
+  }
+  
+  // Update existing selectors' values without recreating them
   playerInputColors.forEach((selectedColor, index) => {
-    const selector = document.createElement('select');
-    selector.className = 'color-selector';
-    
-    // Add blank option
-    const blankOption = document.createElement('option');
-    blankOption.value = '';
-    blankOption.textContent = '---';
-    blankOption.selected = selectedColor === null;
-    selector.appendChild(blankOption);
-    
-    COLORS.forEach((color) => {
-      const option = document.createElement('option');
-      option.value = color;
-      option.textContent = COLOR_NAMES[color];
-      option.selected = color === selectedColor;
-      selector.appendChild(option);
-    });
-
-    selector.addEventListener('change', (e) => {
-      const target = e.target as HTMLSelectElement;
-      const value = target.value === '' ? null : target.value as Color;
-      onColorChange(index, value);
-    });
-
-    playerInput.appendChild(selector);
+    const selector = document.getElementById(`color-selector-${index}`) as HTMLSelectElement;
+    if (selector) {
+      const value = selectedColor === null ? '' : selectedColor;
+      if (selector.value !== value) {
+        selector.value = value;
+      }
+    }
   });
 }
 
