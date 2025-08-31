@@ -16,6 +16,7 @@ One Guess Mastermind - A puzzle game where players try to deduce a secret 4-colo
 - `npm run build` - Build for production
 - `npm run typecheck` - Run TypeScript type checking
 - `npm run lint` - Run ESLint (use `npm run lint -- --fix` to auto-fix issues)
+- **IMPORTANT**: Run `npm run lint` after each code change to catch linting issues early
 
 ## Recent Major Features
 

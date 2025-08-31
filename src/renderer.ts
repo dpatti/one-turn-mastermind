@@ -1,4 +1,4 @@
-import { GameState, Code, Color, PlayerCode, PlayerColor, COLORS, COLOR_NAMES, COLOR_STYLES, GuessWithFeedback, CandidateCode } from './types.js';
+import { GameState, Code, Color, PlayerCode, PlayerColor, COLORS, COLOR_STYLES, GuessWithFeedback, CandidateCode } from './types.js';
 import { calculateFeedback } from './game-logic.js';
 
 export function renderGame(
@@ -387,7 +387,7 @@ function renderPlayerInput(
       if (selector.value !== value) {
         selector.value = value;
       }
-      
+
       // Update background color based on selection
       if (selectedColor) {
         selector.style.backgroundColor = COLOR_STYLES[selectedColor];
