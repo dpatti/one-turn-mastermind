@@ -1,5 +1,5 @@
 {
-  "name": "one-guess-mastermind",
+  "name": "one-turn-mastermind",
   "version": "1.0.0",
   "description": "A reverse Mastermind game where players deduce the solution from given clues",
   "main": "index.html",
