@@ -32,26 +32,38 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
   );
   
   const selectedGuesses: GuessWithFeedback[] = [];
+  const usedGuesses: Code[] = [];
   
   // First guess is completely random for variety
   if (remainingPossibilities.length > 0) {
-    const randomIndex = Math.floor(Math.random() * allPossibleGuesses.length);
-    const firstGuess = allPossibleGuesses[randomIndex];
+    const availableGuesses = allPossibleGuesses.filter(guess => 
+      !arraysEqual(guess, secret) && !usedGuesses.some(used => arraysEqual(used, guess))
+    );
     
-    // Make sure first guess isn't the secret itself
-    if (!arraysEqual(firstGuess, secret)) {
+    if (availableGuesses.length > 0) {
+      const randomIndex = Math.floor(Math.random() * availableGuesses.length);
+      const firstGuess = availableGuesses[randomIndex];
+      
       const feedback = calculateFeedback(firstGuess, secret);
       selectedGuesses.push({ guess: firstGuess, feedback });
+      usedGuesses.push(firstGuess);
       remainingPossibilities = filterPossibleSolutions(remainingPossibilities, firstGuess, feedback);
     }
   }
   
   // Continue with optimal guesses until we have no remaining possibilities (only the secret remains)
   while (remainingPossibilities.length > 0) {
-    const bestGuess = findBestGuess(remainingPossibilities, allPossibleGuesses, allFeedbackOptions);
-    const feedback = calculateFeedback(bestGuess, secret);
+    const bestGuess = findBestGuess(remainingPossibilities, allPossibleGuesses, allFeedbackOptions, usedGuesses);
     
+    // Safety check: if no valid guess found, stop
+    if (!bestGuess) {
+      console.warn('No valid guess found, stopping');
+      break;
+    }
+    
+    const feedback = calculateFeedback(bestGuess, secret);
     selectedGuesses.push({ guess: bestGuess, feedback });
+    usedGuesses.push(bestGuess);
     
     remainingPossibilities = filterPossibleSolutions(remainingPossibilities, bestGuess, feedback);
     
@@ -74,11 +86,20 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
   return selectedGuesses;
 }
 
-function findBestGuess(remainingPossibilities: Code[], allPossibleGuesses: Code[], allFeedbackOptions: Feedback[]): Code {
-  let bestGuess = remainingPossibilities[0];
-  let bestScore = 0;
+function findBestGuess(remainingPossibilities: Code[], allPossibleGuesses: Code[], allFeedbackOptions: Feedback[], usedGuesses: Code[]): Code | null {
+  let bestGuess: Code | null = null;
+  let bestScore = -1;
   
-  for (const guess of allPossibleGuesses) {
+  // Filter out guesses that have already been used
+  const availableGuesses = allPossibleGuesses.filter(guess => 
+    !usedGuesses.some(used => arraysEqual(used, guess))
+  );
+  
+  if (availableGuesses.length === 0) {
+    return null; // No available guesses left
+  }
+  
+  for (const guess of availableGuesses) {
     const score = calculateGuessScore(guess, remainingPossibilities, allFeedbackOptions);
     
     if (score > bestScore || (score === bestScore && Math.random() < 0.5)) {
