@@ -105,14 +105,21 @@ export function generateOptimalGuesses(secret: Code): GuessWithFeedback[] {
 
 function findBestGuess(remainingPossibilities: Code[], allFeedbackOptions: Feedback[]): Code {
   let bestGuess = remainingPossibilities[0];
-  let bestScore = 0;
+  let bestScore = -1;
+  let countWithBestScore = 0;
   
   for (const guess of remainingPossibilities) {
     const score = calculateGuessScore(guess, remainingPossibilities, allFeedbackOptions);
     
-    if (score > bestScore || (score === bestScore && Math.random() < 0.5)) {
+    if (score > bestScore) {
       bestScore = score;
       bestGuess = guess;
+      countWithBestScore = 1;
+    } else if (score === bestScore) {
+      countWithBestScore++;
+      if (Math.random() < 1 / countWithBestScore) {
+        bestGuess = guess;
+      }
     }
   }
   
