@@ -17,7 +17,7 @@ class Game {
     const allPossibleGuesses = generateAllPossibleGuesses();
     const secret = allPossibleGuesses[Math.floor(Math.random() * allPossibleGuesses.length)];
     const pastGuesses = generateOptimalGuesses(secret);
-    
+
     return {
       secret,
       pastGuesses,
@@ -47,11 +47,11 @@ class Game {
     const playerGuess = this.playerInputColors as Code;
     this.state.playerGuess = [...playerGuess];
     this.state.gameEnded = true;
-    
-    const isCorrect = playerGuess.every((color, index) => 
+
+    const isCorrect = playerGuess.every((color, index) =>
       color === this.state.secret[index]
     );
-    
+
     this.state.playerWon = isCorrect;
     this.render();
   }

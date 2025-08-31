@@ -2,8 +2,8 @@ import { GameState, Code, Color, PlayerCode, PlayerColor, COLORS, COLOR_NAMES, C
 import { calculateFeedback } from './game-logic.js';
 
 export function renderGame(
-  state: GameState, 
-  playerInputColors: PlayerCode, 
+  state: GameState,
+  playerInputColors: PlayerCode,
   onColorChange: (index: number, color: PlayerColor) => void
 ): void {
   renderGameBoard(state);
@@ -35,7 +35,7 @@ function createGuessRow(guessData: GuessWithFeedback): HTMLDivElement {
 
   const guessContainer = document.createElement('div');
   guessContainer.className = 'guess-pegs';
-  
+
   guessData.guess.forEach((color) => {
     const peg = createPeg(color);
     guessContainer.appendChild(peg);
@@ -43,12 +43,12 @@ function createGuessRow(guessData: GuessWithFeedback): HTMLDivElement {
 
   const feedbackContainer = document.createElement('div');
   feedbackContainer.className = 'feedback-pegs';
-  
+
   for (let i = 0; i < guessData.feedback.black; i++) {
     const blackPeg = createFeedbackPeg('black');
     feedbackContainer.appendChild(blackPeg);
   }
-  
+
   for (let i = 0; i < guessData.feedback.white; i++) {
     const whitePeg = createFeedbackPeg('white');
     feedbackContainer.appendChild(whitePeg);
@@ -66,7 +66,7 @@ function createPlayerGuessRow(playerGuess: Code, secret: Code, playerWon: boolea
 
   const guessContainer = document.createElement('div');
   guessContainer.className = 'guess-pegs';
-  
+
   playerGuess.forEach((color) => {
     const peg = createPeg(color);
     guessContainer.appendChild(peg);
@@ -76,12 +76,12 @@ function createPlayerGuessRow(playerGuess: Code, secret: Code, playerWon: boolea
   feedbackContainer.className = 'feedback-pegs';
 
   const feedback = calculateFeedback(playerGuess, secret);
-  
+
   for (let i = 0; i < feedback.black; i++) {
     const blackPeg = createFeedbackPeg('black');
     feedbackContainer.appendChild(blackPeg);
   }
-  
+
   for (let i = 0; i < feedback.white; i++) {
     const whitePeg = createFeedbackPeg('white');
     feedbackContainer.appendChild(whitePeg);
@@ -94,19 +94,19 @@ function createPlayerGuessRow(playerGuess: Code, secret: Code, playerWon: boolea
     const secretContainer = document.createElement('div');
     secretContainer.style.marginLeft = '20px';
     secretContainer.innerHTML = '<strong>Secret: </strong>';
-    
+
     const secretPegs = document.createElement('div');
     secretPegs.className = 'guess-pegs';
     secretPegs.style.display = 'inline-flex';
     secretPegs.style.marginLeft = '10px';
-    
+
     secret.forEach((color) => {
       const peg = createPeg(color);
       peg.style.width = '30px';
       peg.style.height = '30px';
       secretPegs.appendChild(peg);
     });
-    
+
     secretContainer.appendChild(secretPegs);
     row.appendChild(secretContainer);
   }
@@ -133,7 +133,7 @@ function createFeedbackPeg(type: 'black' | 'white'): HTMLDivElement {
 }
 
 function renderPlayerInput(
-  playerInputColors: PlayerCode, 
+  playerInputColors: PlayerCode,
   onColorChange: (index: number, color: PlayerColor) => void,
   gameEnded: boolean
 ): void {
@@ -147,22 +147,22 @@ function renderPlayerInput(
 
   // Check if selectors already exist
   const existingSelectors = playerInput.querySelectorAll('select.color-selector');
-  
+
   if (existingSelectors.length !== playerInputColors.length) {
     // Need to recreate all selectors
     playerInput.innerHTML = '';
-    
+
     playerInputColors.forEach((_, index) => {
       const selector = document.createElement('select');
       selector.className = 'color-selector';
       selector.id = `color-selector-${index}`;
-      
+
       // Add blank option
       const blankOption = document.createElement('option');
       blankOption.value = '';
       blankOption.textContent = '---';
       selector.appendChild(blankOption);
-      
+
       COLORS.forEach((color) => {
         const option = document.createElement('option');
         option.value = color;
@@ -179,7 +179,7 @@ function renderPlayerInput(
       playerInput.appendChild(selector);
     });
   }
-  
+
   // Update existing selectors' values without recreating them
   playerInputColors.forEach((selectedColor, index) => {
     const selector = document.getElementById(`color-selector-${index}`) as HTMLSelectElement;
