@@ -1,87 +1,96 @@
 import { Code, Color, GuessWithFeedback, PuzzleData } from './types.js';
 import { calculateFeedback } from './game-logic.js';
 
-// Map colors to indices for compact encoding
-const COLOR_TO_INDEX: Record<Color, number> = {
-  R: 0, G: 1, B: 2, Y: 3, O: 4, P: 5
+// Map colors to values 1-6 (avoiding 0 for easier bit manipulation)
+const COLOR_TO_VALUE: Record<Color, number> = {
+  R: 1, G: 2, B: 3, Y: 4, O: 5, P: 6
 };
-const INDEX_TO_COLOR: Color[] = ['R', 'G', 'B', 'Y', 'O', 'P'];
+const VALUE_TO_COLOR: Color[] = ['', 'R', 'G', 'B', 'Y', 'O', 'P'] as Color[];
 
 export function serializePuzzle(puzzleData: PuzzleData): string {
   console.log('Serializing puzzle:', puzzleData);
-  
-  // Encode only secret and guesses - feedback can be recalculated
-  let result = '';
-  
-  // Encode secret (4 characters)
-  for (const color of puzzleData.secret) {
-    result += COLOR_TO_INDEX[color].toString();
-  }
-  
-  // Encode number of guesses (1 hex digit)
-  result += puzzleData.pastGuesses.length.toString(16);
-  
-  // Encode each guess only (no feedback needed)
-  for (const { guess } of puzzleData.pastGuesses) {
-    for (const color of guess) {
-      result += COLOR_TO_INDEX[color].toString();
+
+  // Pack colors into bits - each color needs 3 bits (values 1-6)
+  // A code of 4 colors needs 12 bits total
+  const packCode = (code: Code): number => {
+    let packed = 0;
+    for (let i = 0; i < 4; i++) {
+      packed = (packed << 3) | COLOR_TO_VALUE[code[i]];
     }
+    return packed;
+  };
+
+  // Start with version prefix
+  let result = '1.';
+
+  // Add secret
+  const secretPacked = packCode(puzzleData.secret);
+  result += secretPacked.toString(36).padStart(3, '0');
+
+  // Add each guess
+  for (const { guess } of puzzleData.pastGuesses) {
+    const guessPacked = packCode(guess);
+    result += guessPacked.toString(36).padStart(3, '0');
   }
-  
+
   console.log('Encoded string:', result);
-  
-  // Convert to base64 for URL safety
-  return btoa(result).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  return result;
 }
 
 export function deserializePuzzle(serialized: string): PuzzleData | null {
   try {
     console.log('Deserializing puzzle:', serialized);
-    
-    // Restore base64 padding and convert back
-    const padded = serialized.replace(/-/g, '+').replace(/_/g, '/');
-    const paddedLength = padded + '==='.slice(0, (4 - padded.length % 4) % 4);
-    const decoded = atob(paddedLength);
-    
-    console.log('Decoded string:', decoded);
-    
-    if (decoded.length < 5) return null; // At least secret (4) + count (1)
-    
-    let pos = 0;
-    
-    // Decode secret (4 characters)
-    const secret: Code = [
-      INDEX_TO_COLOR[parseInt(decoded[pos++])],
-      INDEX_TO_COLOR[parseInt(decoded[pos++])],
-      INDEX_TO_COLOR[parseInt(decoded[pos++])],
-      INDEX_TO_COLOR[parseInt(decoded[pos++])]
-    ];
-    
+
+    // Check version prefix
+    if (!serialized.startsWith('1.')) {
+      console.error('Unsupported serialization version');
+      return null;
+    }
+
+    // Remove version prefix
+    const data = serialized.slice(2);
+
+    // Unpack a 12-bit packed code back to colors
+    const unpackCode = (packed: number): Code => {
+      const code: Color[] = [];
+      for (let i = 3; i >= 0; i--) {
+        const value = (packed >> (i * 3)) & 0x7;
+        if (value < 1 || value > 6) return null as any;
+        code.push(VALUE_TO_COLOR[value]);
+      }
+      return code as Code;
+    };
+
+    // Each code is encoded as 3 base36 characters
+    if (data.length % 3 !== 0 || data.length < 3) return null;
+
+    const values: number[] = [];
+    for (let i = 0; i < data.length; i += 3) {
+      const chunk = data.slice(i, i + 3);
+      const value = parseInt(chunk, 36);
+      if (isNaN(value)) return null;
+      values.push(value);
+    }
+
+    // First value is the secret
+    const secret = unpackCode(values[0]);
+    if (!secret) return null;
+
     console.log('Decoded secret:', secret);
-    
-    // Decode number of guesses
-    const numGuesses = parseInt(decoded[pos++], 16);
-    console.log('Number of guesses:', numGuesses);
-    
-    if (decoded.length < 5 + numGuesses * 4) return null; // Each guess is 4 chars (4 colors)
-    
-    // Decode guesses and calculate feedback
+
+    // Remaining values are guesses
     const pastGuesses: GuessWithFeedback[] = [];
-    for (let i = 0; i < numGuesses; i++) {
-      const guess: Code = [
-        INDEX_TO_COLOR[parseInt(decoded[pos++])],
-        INDEX_TO_COLOR[parseInt(decoded[pos++])],
-        INDEX_TO_COLOR[parseInt(decoded[pos++])],
-        INDEX_TO_COLOR[parseInt(decoded[pos++])]
-      ];
-      
+    for (let i = 1; i < values.length; i++) {
+      const guess = unpackCode(values[i]);
+      if (!guess) return null;
+
       // Calculate feedback from secret and guess
       const feedback = calculateFeedback(guess, secret);
-      
-      console.log(`Decoded guess ${i}:`, guess, 'calculated feedback:', feedback);
+
+      console.log(`Decoded guess ${i - 1}:`, guess, 'calculated feedback:', feedback);
       pastGuesses.push({ guess, feedback });
     }
-    
+
     const result = { secret, pastGuesses };
     console.log('Final deserialized result:', result);
     return result;
