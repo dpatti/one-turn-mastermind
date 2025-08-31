@@ -13,7 +13,7 @@ class Game {
     this.state = this.initializeGameFromURL();
     this.playerInputColors = [null, null, null, null];
     this.candidateColors = [new Set(), new Set(), new Set(), new Set()];
-    this.advancedMode = false;
+    this.advancedMode = this.loadAdvancedModeSetting();
     this.setupEventListeners();
     this.render();
   }
@@ -118,12 +118,22 @@ class Game {
     this.state = this.initializeGame();
     this.playerInputColors = [null, null, null, null];
     this.candidateColors = [new Set(), new Set(), new Set(), new Set()];
-    this.advancedMode = false;
+    // Keep the current advanced mode setting instead of resetting to false
     this.render();
+  }
+
+  private loadAdvancedModeSetting(): boolean {
+    const saved = localStorage.getItem('mastermind-advanced-mode');
+    return saved === 'true';
+  }
+
+  private saveAdvancedModeSetting(): void {
+    localStorage.setItem('mastermind-advanced-mode', this.advancedMode.toString());
   }
 
   private toggleAdvancedMode(): void {
     this.advancedMode = !this.advancedMode;
+    this.saveAdvancedModeSetting();
     this.render();
   }
 
