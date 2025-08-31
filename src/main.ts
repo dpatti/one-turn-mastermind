@@ -1,4 +1,4 @@
-import { GameState, Code, PlayerCode, PlayerColor } from './types.js';
+import { GameState, Code, PlayerCode, PlayerColor, CandidateCode, Color } from './types.js';
 import { generateOptimalGuesses, generateAllPossibleGuesses } from './game-logic.js';
 import { renderGame } from './renderer.js';
 import { serializePuzzle, deserializePuzzle, getCurrentPuzzleData } from './puzzle-serializer.js';
@@ -6,10 +6,14 @@ import { serializePuzzle, deserializePuzzle, getCurrentPuzzleData } from './puzz
 class Game {
   private state: GameState;
   private playerInputColors: PlayerCode;
+  private candidateColors: CandidateCode;
+  private advancedMode: boolean;
 
   constructor() {
     this.state = this.initializeGameFromURL();
     this.playerInputColors = [null, null, null, null];
+    this.candidateColors = [new Set(), new Set(), new Set(), new Set()];
+    this.advancedMode = false;
     this.setupEventListeners();
     this.render();
   }
@@ -113,14 +117,56 @@ class Game {
     window.history.pushState({}, '', window.location.pathname);
     this.state = this.initializeGame();
     this.playerInputColors = [null, null, null, null];
+    this.candidateColors = [new Set(), new Set(), new Set(), new Set()];
+    this.advancedMode = false;
+    this.render();
+  }
+
+  private toggleAdvancedMode(): void {
+    this.advancedMode = !this.advancedMode;
+    this.render();
+  }
+
+  private updateCandidates(index: number, color: Color, checked: boolean): void {
+    if (checked) {
+      this.candidateColors[index].add(color);
+    } else {
+      this.candidateColors[index].delete(color);
+    }
+
+    // Only set a selection when exactly one candidate is selected
+    if (this.candidateColors[index].size === 1) {
+      this.playerInputColors[index] = Array.from(this.candidateColors[index])[0];
+    } else {
+      // Clear selection if 0 or more than 1 candidates
+      this.playerInputColors[index] = null;
+    }
+
     this.render();
   }
 
   private render(): void {
-    renderGame(this.state, this.playerInputColors, (index: number, color: PlayerColor) => {
-      this.playerInputColors[index] = color;
-      this.render();
-    });
+    renderGame(
+      this.state,
+      this.playerInputColors,
+      this.candidateColors,
+      this.advancedMode,
+      (index: number, color: PlayerColor) => {
+        this.playerInputColors[index] = color;
+        // Update candidates when dropdown changes
+        if (color !== null) {
+          this.candidateColors[index].clear();
+          this.candidateColors[index].add(color);
+        } else {
+          this.candidateColors[index].clear();
+        }
+        this.render();
+      },
+      (index: number, color: Color, checked: boolean) => {
+        this.updateCandidates(index, color, checked);
+      },
+      () => this.toggleAdvancedMode()
+    );
   }
 }
 

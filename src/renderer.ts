@@ -1,13 +1,22 @@
-import { GameState, Code, Color, PlayerCode, PlayerColor, COLORS, COLOR_NAMES, COLOR_STYLES, GuessWithFeedback } from './types.js';
+import { GameState, Code, Color, PlayerCode, PlayerColor, COLORS, COLOR_NAMES, COLOR_STYLES, GuessWithFeedback, CandidateCode } from './types.js';
 import { calculateFeedback } from './game-logic.js';
 
 export function renderGame(
   state: GameState,
   playerInputColors: PlayerCode,
-  onColorChange: (index: number, color: PlayerColor) => void
+  candidateColors: CandidateCode,
+  advancedMode: boolean,
+  onColorChange: (index: number, color: PlayerColor) => void,
+  onCandidateChange: (index: number, color: Color, checked: boolean) => void,
+  onToggleAdvancedMode: () => void
 ): void {
   renderGameBoard(state);
-  renderPlayerInput(playerInputColors, onColorChange, state.gameEnded);
+  renderModeToggle(advancedMode, onToggleAdvancedMode, state.gameEnded);
+  if (advancedMode) {
+    renderAdvancedInput(playerInputColors, candidateColors, onCandidateChange, state.gameEnded, advancedMode, onToggleAdvancedMode);
+  } else {
+    renderPlayerInput(playerInputColors, onColorChange, state.gameEnded, advancedMode, onToggleAdvancedMode);
+  }
   renderSubmitButton(playerInputColors, state.gameEnded);
   renderResult(state);
 }
@@ -132,18 +141,209 @@ function createFeedbackPeg(type: 'black' | 'white'): HTMLDivElement {
   return peg;
 }
 
-function renderPlayerInput(
+function renderModeToggle(advancedMode: boolean, _onToggle: () => void, gameEnded: boolean): void {
+  // The toggle button will be added directly to the player input container
+  // This function just ensures the button exists and has the right text
+  if (gameEnded) {
+    return;
+  }
+
+  const toggleButton = document.getElementById('mode-toggle') as HTMLButtonElement;
+  if (toggleButton) {
+    toggleButton.textContent = advancedMode ? 'Switch to Simple Mode' : 'Switch to Advanced Mode';
+  }
+}
+
+function createToggleButton(advancedMode: boolean, onToggle: () => void): HTMLButtonElement {
+  const toggleButton = document.createElement('button');
+  toggleButton.id = 'mode-toggle';
+  toggleButton.className = 'mode-toggle-button';
+  toggleButton.textContent = advancedMode ? 'Switch to Simple Mode' : 'Switch to Advanced Mode';
+  toggleButton.style.padding = '10px 20px';
+  toggleButton.style.background = '#607D8B';
+  toggleButton.style.color = 'white';
+  toggleButton.style.border = 'none';
+  toggleButton.style.borderRadius = '5px';
+  toggleButton.style.cursor = 'pointer';
+  toggleButton.style.fontSize = '14px';
+  toggleButton.style.whiteSpace = 'nowrap';
+  toggleButton.style.alignSelf = 'flex-end';
+  toggleButton.style.marginLeft = 'auto';
+  toggleButton.addEventListener('click', onToggle);
+  return toggleButton;
+}
+
+function renderAdvancedInput(
   playerInputColors: PlayerCode,
-  onColorChange: (index: number, color: PlayerColor) => void,
-  gameEnded: boolean
+  candidateColors: CandidateCode,
+  onCandidateChange: (index: number, color: Color, checked: boolean) => void,
+  gameEnded: boolean,
+  advancedMode: boolean,
+  onToggleAdvancedMode: () => void
 ): void {
-  const playerInput = document.getElementById('player-input');
-  if (!playerInput) return;
+  // Create or get the main container
+  let container = document.getElementById('player-input-container');
+  if (!container) {
+    const gameBoard = document.getElementById('game-board');
+    if (!gameBoard) return;
+    
+    container = document.createElement('div');
+    container.id = 'player-input-container';
+    container.className = 'player-input';
+    container.style.marginBottom = '20px';
+    gameBoard.insertAdjacentElement('afterend', container);
+  }
+
+  let playerInput = document.getElementById('player-input');
+  if (!playerInput) {
+    playerInput = document.createElement('div');
+    playerInput.id = 'player-input';
+    container.appendChild(playerInput);
+  }
 
   if (gameEnded) {
     playerInput.innerHTML = '';
     return;
   }
+
+  playerInput.innerHTML = '';
+  playerInput.className = 'player-input-advanced';
+  playerInput.style.display = 'flex';
+  playerInput.style.flexWrap = 'wrap';
+  playerInput.style.alignItems = 'flex-end';
+  playerInput.style.gap = '20px';
+  playerInput.style.marginBottom = '20px';
+
+  for (let i = 0; i < 4; i++) {
+    const slotContainer = document.createElement('div');
+    slotContainer.className = 'slot-container';
+    slotContainer.style.border = '2px solid #333';
+    slotContainer.style.borderRadius = '8px';
+    slotContainer.style.padding = '12px';
+    slotContainer.style.background = '#f8f8f8';
+
+
+    // Only show selected color when exactly one candidate is selected
+    const selectedColor = playerInputColors[i];
+    if (selectedColor && candidateColors[i].size === 1) {
+      const selectedPeg = createPeg(selectedColor);
+      selectedPeg.style.margin = '0 auto 10px';
+      slotContainer.appendChild(selectedPeg);
+    } else {
+      // Show a placeholder when no selection or multiple candidates
+      const placeholder = document.createElement('div');
+      placeholder.style.width = '40px';
+      placeholder.style.height = '40px';
+      placeholder.style.margin = '0 auto 10px';
+      placeholder.style.border = '2px dashed #999';
+      placeholder.style.borderRadius = '50%';
+      placeholder.style.display = 'flex';
+      placeholder.style.alignItems = 'center';
+      placeholder.style.justifyContent = 'center';
+      placeholder.style.fontSize = '18px';
+      placeholder.style.color = '#999';
+      placeholder.textContent = '?';
+      slotContainer.appendChild(placeholder);
+    }
+
+    const checkboxContainer = document.createElement('div');
+    checkboxContainer.style.display = 'flex';
+    checkboxContainer.style.flexDirection = 'column';
+    checkboxContainer.style.gap = '6px';
+
+    COLORS.forEach((color) => {
+      const label = document.createElement('label');
+      label.style.display = 'flex';
+      label.style.alignItems = 'center';
+      label.style.cursor = 'pointer';
+      label.style.padding = '4px';
+      label.style.borderRadius = '4px';
+      label.style.transition = 'background 0.2s';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = candidateColors[i].has(color);
+      checkbox.style.marginRight = '8px';
+      checkbox.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement;
+        onCandidateChange(i, color, target.checked);
+      });
+
+      const colorBox = document.createElement('div');
+      colorBox.style.width = '20px';
+      colorBox.style.height = '20px';
+      colorBox.style.backgroundColor = COLOR_STYLES[color];
+      colorBox.style.border = '1px solid #333';
+      colorBox.style.borderRadius = '3px';
+      colorBox.style.marginRight = '6px';
+
+      const colorName = document.createElement('span');
+      colorName.textContent = color;
+      colorName.style.fontSize = '14px';
+
+      label.appendChild(checkbox);
+      label.appendChild(colorBox);
+      label.appendChild(colorName);
+
+      label.addEventListener('mouseenter', () => {
+        label.style.background = '#e0e0e0';
+      });
+      label.addEventListener('mouseleave', () => {
+        label.style.background = 'transparent';
+      });
+
+      checkboxContainer.appendChild(label);
+    });
+
+    slotContainer.appendChild(checkboxContainer);
+    playerInput.appendChild(slotContainer);
+  }
+  
+  // Add toggle button
+  const existingToggle = document.getElementById('mode-toggle');
+  if (!existingToggle) {
+    const toggleButton = createToggleButton(advancedMode, onToggleAdvancedMode);
+    playerInput.appendChild(toggleButton);
+  }
+}
+
+function renderPlayerInput(
+  playerInputColors: PlayerCode,
+  onColorChange: (index: number, color: PlayerColor) => void,
+  gameEnded: boolean,
+  advancedMode: boolean,
+  onToggleAdvancedMode: () => void
+): void {
+  // Create or get the main container
+  let container = document.getElementById('player-input-container');
+  if (!container) {
+    const gameBoard = document.getElementById('game-board');
+    if (!gameBoard) return;
+    
+    container = document.createElement('div');
+    container.id = 'player-input-container';
+    container.className = 'player-input';
+    container.style.marginBottom = '20px';
+    gameBoard.insertAdjacentElement('afterend', container);
+  }
+
+  let playerInput = document.getElementById('player-input');
+  if (!playerInput) {
+    playerInput = document.createElement('div');
+    playerInput.id = 'player-input';
+    container.appendChild(playerInput);
+  }
+
+  if (gameEnded) {
+    playerInput.innerHTML = '';
+    return;
+  }
+
+  playerInput.className = 'player-input';
+  playerInput.style.display = 'flex';
+  playerInput.style.flexWrap = 'wrap';
+  playerInput.style.alignItems = 'center';
+  playerInput.style.gap = '10px';
 
   // Check if selectors already exist
   const existingSelectors = playerInput.querySelectorAll('select.color-selector');
@@ -190,6 +390,13 @@ function renderPlayerInput(
       }
     }
   });
+  
+  // Add toggle button
+  const existingToggle = document.getElementById('mode-toggle');
+  if (!existingToggle) {
+    const toggleButton = createToggleButton(advancedMode, onToggleAdvancedMode);
+    playerInput.appendChild(toggleButton);
+  }
 }
 
 function renderSubmitButton(playerInputColors: PlayerCode, gameEnded: boolean): void {

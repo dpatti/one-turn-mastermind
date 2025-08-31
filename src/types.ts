@@ -6,6 +6,9 @@ export type Code = [Color, Color, Color, Color];
 
 export type PlayerCode = [PlayerColor, PlayerColor, PlayerColor, PlayerColor];
 
+export type CandidateColors = Set<Color>;
+export type CandidateCode = [CandidateColors, CandidateColors, CandidateColors, CandidateColors];
+
 export interface Feedback {
   black: number;
   white: number;
