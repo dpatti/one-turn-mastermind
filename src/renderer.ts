@@ -186,7 +186,7 @@ function renderAdvancedInput(
   if (!container) {
     const gameBoard = document.getElementById('game-board');
     if (!gameBoard) return;
-    
+
     container = document.createElement('div');
     container.id = 'player-input-container';
     container.className = 'player-input';
@@ -298,7 +298,7 @@ function renderAdvancedInput(
     slotContainer.appendChild(checkboxContainer);
     playerInput.appendChild(slotContainer);
   }
-  
+
   // Add toggle button
   const existingToggle = document.getElementById('mode-toggle');
   if (!existingToggle) {
@@ -319,7 +319,7 @@ function renderPlayerInput(
   if (!container) {
     const gameBoard = document.getElementById('game-board');
     if (!gameBoard) return;
-    
+
     container = document.createElement('div');
     container.id = 'player-input-container';
     container.className = 'player-input';
@@ -390,7 +390,7 @@ function renderPlayerInput(
       }
     }
   });
-  
+
   // Add toggle button
   const existingToggle = document.getElementById('mode-toggle');
   if (!existingToggle) {
