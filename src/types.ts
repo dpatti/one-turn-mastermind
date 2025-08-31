@@ -24,6 +24,11 @@ export interface GameState {
   playerWon: boolean;
 }
 
+export interface PuzzleData {
+  secret: Code;
+  pastGuesses: GuessWithFeedback[];
+}
+
 export const COLORS: Color[] = ['R', 'G', 'B', 'Y', 'O', 'P'];
 
 export const COLOR_NAMES: Record<Color, string> = {

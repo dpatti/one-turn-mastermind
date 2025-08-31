@@ -109,6 +109,19 @@
         .new-game-button:hover {
             background: #1976D2;
         }
+        .share-button {
+            padding: 15px 30px;
+            background: #FF9800;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .share-button:hover {
+            background: #F57C00;
+        }
         .result {
             text-align: center;
             margin-top: 20px;
@@ -130,7 +143,10 @@
         <div id="player-input" class="player-input"></div>
         <div id="game-controls">
             <button id="submit-button" class="submit-button">Submit</button>
-            <button id="new-game-button" class="new-game-button">New Game</button>
+            <div>
+                <button id="share-button" class="share-button">Share Link</button>
+                <button id="new-game-button" class="new-game-button">New Game</button>
+            </div>
         </div>
         <div id="result" class="result"></div>
     </div>
