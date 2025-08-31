@@ -1,0 +1,21 @@
+{
+  "name": "one-guess-mastermind",
+  "version": "1.0.0",
+  "description": "A reverse Mastermind game where players deduce the solution from given clues",
+  "main": "index.html",
+  "scripts": {
+    "build": "tsc && vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
+    "eslint": "^8.45.0",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.0"
+  },
+  "type": "module"
+}

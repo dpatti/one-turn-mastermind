@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Guess Mastermind</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .game-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .game-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .game-board {
+            margin-bottom: 30px;
+        }
+        .guess-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f8f8;
+            border-radius: 5px;
+        }
+        .guess-pegs {
+            display: flex;
+            gap: 8px;
+            margin-right: 20px;
+        }
+        .peg {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+        }
+        .feedback-pegs {
+            display: flex;
+            gap: 5px;
+        }
+        .feedback-peg {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 1px solid #666;
+        }
+        .player-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .color-selector {
+            padding: 10px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .submit-button {
+            padding: 15px 30px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .submit-button:hover {
+            background: #45a049;
+        }
+        .new-game-button {
+            padding: 15px 30px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .new-game-button:hover {
+            background: #1976D2;
+        }
+        .result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .result.correct {
+            color: #4CAF50;
+        }
+        .result.incorrect {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">One Guess Mastermind</h1>
+        <div id="game-board" class="game-board"></div>
+        <div id="player-input" class="player-input"></div>
+        <div id="game-controls">
+            <button id="submit-button" class="submit-button">Submit Guess</button>
+            <button id="new-game-button" class="new-game-button">New Game</button>
+        </div>
+        <div id="result" class="result"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
