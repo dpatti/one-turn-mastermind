@@ -163,6 +163,11 @@
                 min-width: 50px !important;
             }
         }
+
+        a {
+          color: #666;
+          text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -176,12 +181,67 @@
             <button id="new-game-button" class="new-game-button">New Game</button>
         </div>
         <div id="result" class="result"></div>
-        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: #666;">
-            <a href="https://github.com/dpatti/one-turn-mastermind" target="_blank" style="color: #666; text-decoration: none;">
-                View on GitHub
-            </a>
+        <div style="text-align: center; margin-top: 20px; font-size: 14px; color: #666; line-height: 1.4;">
+            <div style="margin-bottom: 10px;">
+                <a href="#" id="rules-toggle">
+                    How to play
+                </a>
+                <span style="margin: 0 10px;">•</span>
+                <a href="https://github.com/dpatti/one-turn-mastermind" target="_blank" >
+                    View on GitHub
+                </a>
+            </div>
+            <div id="rules-content" style="display: none; background: #f8f8f8; padding: 15px; border-radius: 8px; margin-top: 10px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <p><b>How to play Mastermind</b></p>
+                <p>
+                    <a href="https://en.wikipedia.org/wiki/Mastermind_(board_game)" target="_blank" style="text-decoration: underline">Mastermind</a>
+                    is a classic game where you try to guess a secret code made
+                    up of four colors. The order of the colors matters, and
+                    colors can repeat. If you're familiar with Wordle, it plays
+                    out in a similar style.
+                </p>
+                <p>
+                    In normal play, a player would submit a guess and receive a
+                    number of black and white pegs in response to their guess.
+                    Each black peg tells you that one slot of the guess is
+                    correct, though it does not tell you which one. Similarly,
+                    each white peg tells you that one slot contains a correct
+                    color but with an incorrect position. A player continues to
+                    submit guesses until they get the secret code or run out of
+                    turns. Repeated colors in a guess may each be rewarded a
+                    black or white peg up to the number of times that color
+                    appears in the code. For example, if a guess is "BBRB" and
+                    the secret is "BYBP", one black peg would be given for the
+                    first "B", and one white peg would be given because another
+                    "B" was in the wrong location.
+                  </p>
+                  <p>
+                    In this variation on the game, you are given a few rounds of
+                    guesses and can make one guess for the final secret code.
+                    There is always enough information in the initial guesses
+                    that the code can be determined logically. See the README on
+                    GitHub for some more information and hints.
+                  </p>
+            </div>
         </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('rules-toggle');
+            const content = document.getElementById('rules-content');
+
+            toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    toggle.textContent = 'Hide rules';
+                } else {
+                    content.style.display = 'none';
+                    toggle.textContent = 'How to play';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
