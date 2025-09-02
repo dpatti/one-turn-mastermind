@@ -194,34 +194,24 @@
             <div id="rules-content" style="display: none; background: #f8f8f8; padding: 15px; border-radius: 8px; margin-top: 10px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
                 <p><b>How to play Mastermind</b></p>
                 <p>
-                    <a href="https://en.wikipedia.org/wiki/Mastermind_(board_game)" target="_blank" style="text-decoration: underline">Mastermind</a>
-                    is a classic game where you try to guess a secret code made
-                    up of four colors. The order of the colors matters, and
-                    colors can repeat. If you're familiar with Wordle, it plays
-                    out in a similar style.
+                    See the <a href="https://en.wikipedia.org/wiki/Mastermind_(board_game)" target="_blank" style="text-decoration: underline">Wikpedia page</a>
+                    for a more complete description of the rules. In brief, your goal is to guess a secret code made up
+                    of a series of colors which can have repeats. Each guess is given feedback in the form of:
+                </p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>A <b>black peg</b> indicating one color is in the correct position</li>
+                    <li>A <b>white peg</b> indicating one color is part of the code but in the wrong position</li>
+                </ul>
+                <p>
+                    If you're familiar with Wordle, it plays out in a similar style, but unlike Wordle, the player is
+                    not told <i>which</i> slot each black/white peg corresponds to.
                 </p>
                 <p>
-                    In normal play, a player would submit a guess and receive a
-                    number of black and white pegs in response to their guess.
-                    Each black peg tells you that one slot of the guess is
-                    correct, though it does not tell you which one. Similarly,
-                    each white peg tells you that one slot contains a correct
-                    color but with an incorrect position. A player continues to
-                    submit guesses until they get the secret code or run out of
-                    turns. Repeated colors in a guess may each be rewarded a
-                    black or white peg up to the number of times that color
-                    appears in the code. For example, if a guess is "BBRB" and
-                    the secret is "BYBP", one black peg would be given for the
-                    first "B", and one white peg would be given because another
-                    "B" was in the wrong location.
-                  </p>
-                  <p>
-                    In this variation on the game, you are given a few rounds of
-                    guesses and can make one guess for the final secret code.
-                    There is always enough information in the initial guesses
-                    that the code can be determined logically. See the README on
-                    GitHub for some more information and hints.
-                  </p>
+                    In this variation on the game, you start with a few rounds of optimal guesses, and you must figure
+                    out the secret code in one turn. There is always enough information given that the code can be
+                    determined logically, no guessing is required. See the README on GitHub for some more information
+                    and hints.
+                </p>
             </div>
         </div>
     </div>
