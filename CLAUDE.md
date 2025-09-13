@@ -12,11 +12,11 @@ One Guess Mastermind - A puzzle game where players try to deduce a secret 4-colo
 - `index.html` - Main HTML with inline CSS
 
 ## Development Commands
-- `npm run dev` - Start development server (usually runs on port 5173, falls back to 5174)
-- `npm run build` - Build for production
-- `npm run typecheck` - Run TypeScript type checking
-- `npm run lint` - Run ESLint (use `npm run lint -- --fix` to auto-fix issues)
-- **IMPORTANT**: Run `npm run lint` after each code change to catch linting issues early
+- `bun run dev` - Start development server (usually runs on port 5173, falls back to 5174)
+- `bun run build` - Build for production
+- `bun run typecheck` - Run TypeScript type checking
+- `bun run lint` - Run ESLint (use `bun run lint -- --fix` to auto-fix issues)
+- **IMPORTANT**: Run `bun run lint` after each code change to catch linting issues early
 
 ## Recent Major Features
 
@@ -62,7 +62,7 @@ One Guess Mastermind - A puzzle game where players try to deduce a secret 4-colo
 ## Common Issues & Solutions
 
 ### Linting
-- Watch out for trailing spaces - use `npm run lint -- --fix`
+- Watch out for trailing spaces - use `bun run lint -- --fix`
 - Unused parameters should be prefixed with `_` (e.g., `_onToggle`)
 
 ### Layout Issues
