@@ -67,11 +67,9 @@ class Game {
   private setupEventListeners(): void {
     const submitButton = document.getElementById('submit-button');
     const newGameButton = document.getElementById('new-game-button');
-    const shareButton = document.getElementById('share-button');
 
     submitButton?.addEventListener('click', () => this.submitGuess());
     newGameButton?.addEventListener('click', () => this.startNewGame());
-    shareButton?.addEventListener('click', () => this.sharePuzzle());
   }
 
   private submitGuess(): void {
@@ -95,30 +93,16 @@ class Game {
     this.render();
   }
 
-  private async sharePuzzle(): Promise<void> {
+  private updateShareLink(): void {
     const puzzleData = getCurrentPuzzleData(this.state.secret, this.state.pastGuesses);
     const serialized = serializePuzzle(puzzleData);
     const url = new URL(window.location.href);
     url.searchParams.set('puzzle', serialized);
     const shareUrl = url.toString();
 
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      // Show temporary feedback
-      const shareButton = document.getElementById('share-button') as HTMLButtonElement;
-      if (shareButton) {
-        const originalText = shareButton.textContent;
-        shareButton.textContent = 'Copied!';
-        shareButton.style.background = '#4CAF50';
-        setTimeout(() => {
-          shareButton.textContent = originalText;
-          shareButton.style.background = '#FF9800';
-        }, 2000);
-      }
-    } catch (err) {
-      console.error('Failed to copy to clipboard:', err);
-      // Fallback: show the URL in an alert
-      alert(`Copy this URL to share the puzzle: ${shareUrl}`);
+    const shareLink = document.getElementById('share-link') as HTMLAnchorElement;
+    if (shareLink) {
+      shareLink.href = shareUrl;
     }
   }
 
@@ -209,6 +193,9 @@ class Game {
       },
       () => this.toggleAdvancedMode()
     );
+
+    // Update the share link with current puzzle state
+    this.updateShareLink();
   }
 }
 
