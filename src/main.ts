@@ -67,9 +67,11 @@ class Game {
   private setupEventListeners(): void {
     const submitButton = document.getElementById('submit-button');
     const newGameButton = document.getElementById('new-game-button');
+    const shareLink = document.getElementById('share-link');
 
     submitButton?.addEventListener('click', () => this.submitGuess());
     newGameButton?.addEventListener('click', () => this.startNewGame());
+    shareLink?.addEventListener('click', (e) => this.handleShareLinkClick(e));
   }
 
   private submitGuess(): void {
@@ -91,6 +93,33 @@ class Game {
 
     this.state.playerWon = isCorrect;
     this.render();
+  }
+
+  private async handleShareLinkClick(e: MouseEvent): Promise<void> {
+    // Only handle left clicks (button 0), let right-click and middle-click work normally
+    if (e.button !== 0) return;
+
+    // Prevent default link navigation for left clicks only
+    e.preventDefault();
+
+    const shareLink = e.target as HTMLAnchorElement;
+    const shareUrl = shareLink.href;
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      // Show temporary feedback
+      const originalText = shareLink.textContent;
+      shareLink.textContent = 'Copied!';
+      shareLink.style.background = '#4CAF50';
+      setTimeout(() => {
+        shareLink.textContent = originalText;
+        shareLink.style.background = '#FF9800';
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+      // Fallback: show the URL in an alert
+      alert(`Copy this URL to share the puzzle: ${shareUrl}`);
+    }
   }
 
   private updateShareLink(): void {
