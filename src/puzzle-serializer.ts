@@ -1,5 +1,5 @@
-import { Code, Color, GuessWithFeedback, PuzzleData } from './types.js';
-import { calculateFeedback } from './game-logic.js';
+import { Code, Color, GuessWithFeedback, PuzzleData, DeserializedPuzzle } from './types.js';
+import { calculateFeedback, findAllPossibleSolutions } from './game-logic.js';
 
 // Map colors to values 1-6 (avoiding 0 for easier bit manipulation)
 const COLOR_TO_VALUE: Record<Color, number> = {
@@ -37,7 +37,7 @@ export function serializePuzzle(puzzleData: PuzzleData): string {
   return result;
 }
 
-export function deserializePuzzle(serialized: string): PuzzleData | null {
+export function deserializePuzzle(serialized: string): DeserializedPuzzle | null {
   try {
     console.log('Deserializing puzzle:', serialized);
 
@@ -91,9 +91,34 @@ export function deserializePuzzle(serialized: string): PuzzleData | null {
       pastGuesses.push({ guess, feedback });
     }
 
-    const result = { secret, pastGuesses };
-    console.log('Final deserialized result:', result);
-    return result;
+    const puzzleData = { secret, pastGuesses };
+    console.log('Final deserialized result:', puzzleData);
+
+    // Validate that the puzzle has a unique solution
+    const possibleSolutions = findAllPossibleSolutions(pastGuesses);
+    let validationWarning: string | undefined;
+
+    // These should never happen since feedback is calculated from the secret
+    if (possibleSolutions.length === 0) {
+      throw new Error('Assertion failed: No possible solutions found. This should be impossible since feedback is calculated from the secret.');
+    }
+
+    if (possibleSolutions.length === 1) {
+      const uniqueSolution = possibleSolutions[0];
+      const secretMatches = secret.every((color, index) => color === uniqueSolution[index]);
+      if (!secretMatches) {
+        throw new Error('Assertion failed: Unique solution does not match secret. This should be impossible since feedback is calculated from the secret.');
+      }
+    }
+
+    // The only real validation issue: ambiguous puzzle with multiple solutions
+    if (possibleSolutions.length > 1) {
+      console.warn(`Invalid puzzle: ${possibleSolutions.length} possible solutions found, puzzle is ambiguous`);
+      console.warn('Possible solutions:', possibleSolutions);
+      validationWarning = `The puzzle contained in this URL is ambiguous with ${possibleSolutions.length} possible solutions and cannot be solved uniquely. The URL may have been corrupted.`;
+    }
+
+    return { puzzleData, validationWarning };
   } catch (e) {
     console.error('Failed to deserialize puzzle:', e);
     return null;

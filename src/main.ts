@@ -37,9 +37,17 @@ class Game {
     const puzzleParam = urlParams.get('puzzle');
 
     if (puzzleParam) {
-      const puzzleData = deserializePuzzle(puzzleParam);
-      if (puzzleData) {
+      const deserializedPuzzle = deserializePuzzle(puzzleParam);
+      if (deserializedPuzzle) {
+        const { puzzleData, validationWarning } = deserializedPuzzle;
         console.log('Loaded puzzle from URL:', puzzleData);
+
+        if (validationWarning) {
+          this.showWarning(validationWarning);
+        } else {
+          this.clearWarning();
+        }
+
         return {
           secret: puzzleData.secret,
           pastGuesses: puzzleData.pastGuesses,
@@ -47,6 +55,8 @@ class Game {
           gameEnded: false,
           playerWon: false
         };
+      } else {
+        this.showWarning('Invalid puzzle URL: The puzzle data is corrupted or in an unrecognized format. A new puzzle has been generated instead.');
       }
     }
 
@@ -118,6 +128,7 @@ class Game {
     this.state = this.initializeGame();
     this.playerInputColors = [null, null, null, null];
     this.candidateColors = [new Set(), new Set(), new Set(), new Set()];
+    this.clearWarning();
     // Keep the current advanced mode setting instead of resetting to false
     this.render();
   }
@@ -153,6 +164,27 @@ class Game {
     }
 
     this.render();
+  }
+
+  private showWarning(message: string): void {
+    let warningDiv = document.getElementById('warning');
+    if (!warningDiv) {
+      warningDiv = document.createElement('div');
+      warningDiv.id = 'warning';
+      warningDiv.className = 'warning';
+      const gameContainer = document.querySelector('.game-container');
+      const gameBoard = document.getElementById('game-board');
+      gameContainer?.insertBefore(warningDiv, gameBoard);
+    }
+    warningDiv.textContent = message;
+    warningDiv.style.display = 'block';
+  }
+
+  private clearWarning(): void {
+    const warningDiv = document.getElementById('warning');
+    if (warningDiv) {
+      warningDiv.style.display = 'none';
+    }
   }
 
   private render(): void {

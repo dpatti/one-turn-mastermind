@@ -32,6 +32,11 @@ export interface PuzzleData {
   pastGuesses: GuessWithFeedback[];
 }
 
+export interface DeserializedPuzzle {
+  puzzleData: PuzzleData;
+  validationWarning?: string;
+}
+
 export const COLORS: Color[] = ['R', 'G', 'B', 'Y', 'O', 'P'];
 
 export const COLOR_NAMES: Record<Color, string> = {
