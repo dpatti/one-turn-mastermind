@@ -150,7 +150,7 @@ function renderModeToggle(advancedMode: boolean, _onToggle: () => void, gameEnde
 
   const toggleButton = document.getElementById('mode-toggle') as HTMLButtonElement;
   if (toggleButton) {
-    toggleButton.textContent = advancedMode ? 'Switch to Simple Mode' : 'Switch to Advanced Mode';
+    toggleButton.textContent = advancedMode ? 'Switch to simple mode' : 'Switch to advanced mode';
   }
 }
 
@@ -158,7 +158,7 @@ function createToggleButton(advancedMode: boolean, onToggle: () => void): HTMLBu
   const toggleButton = document.createElement('button');
   toggleButton.id = 'mode-toggle';
   toggleButton.className = 'mode-toggle-button';
-  toggleButton.textContent = advancedMode ? 'Switch to Simple Mode' : 'Switch to Advanced Mode';
+  toggleButton.textContent = advancedMode ? 'Switch to simple mode' : 'Switch to advanced mode';
   toggleButton.style.padding = '10px 20px';
   toggleButton.style.background = '#607D8B';
   toggleButton.style.color = 'white';
